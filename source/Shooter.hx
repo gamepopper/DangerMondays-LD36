@@ -1,6 +1,11 @@
 package;
 
 import flixel.group.FlxGroup.FlxTypedGroup;
+import nape.callbacks.CbType;
+import nape.callbacks.InteractionCallback;
+import nape.callbacks.InteractionListener;
+import nape.callbacks.CbEvent;
+import nape.callbacks.InteractionType;
 import nape.geom.Vec2;
 
 import flixel.addons.nape.FlxNapeSpace;
@@ -15,8 +20,8 @@ import flixel.math.FlxVector;
  * @author Gamepopper
  */
 class Shooter extends FlxTypedGroup<FlxNapeSprite>
-{
-	public function new() 
+{	
+	public function new(player:CbType) 
 	{
 		super(10);
 		
@@ -28,10 +33,14 @@ class Shooter extends FlxTypedGroup<FlxNapeSprite>
 			spr.createCircularBody(4);
 			spr.body.isBullet = true;
 			spr.setBodyMaterial(1, 0, 0, 4);
+			var cbType = new CbType();
+			var interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, cbType, player, HitSound);
+			spr.body.cbTypes.add(cbType);
 			spr.kill();
 			
 			add(spr);
-		}
+			FlxNapeSpace.space.listeners.add(interactionListener);
+		}		
 	}
 	
 	public function Fire(strength:Float = 4.5)
@@ -64,6 +73,11 @@ class Shooter extends FlxTypedGroup<FlxNapeSprite>
 		spr.body.angularVel = 5;
 		
 		spr.revive();
+	}
+	
+	function HitSound(callback:InteractionCallback)
+	{
+		FlxG.sound.play(AssetPaths.hit__ogg);
 	}
 	
 	override public function update(elapsed:Float):Void 

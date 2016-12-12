@@ -12,6 +12,11 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import nape.callbacks.CbEvent;
+import nape.callbacks.CbType;
+import nape.callbacks.InteractionListener;
+import nape.callbacks.InteractionCallback;
+import nape.callbacks.InteractionType;
 import nape.geom.Vec2;
 import nape.phys.BodyType;
 
@@ -42,8 +47,10 @@ class PlayState extends FlxState
 	{
 		super.create();
 		FlxNapeSpace.init();
-		FlxNapeSpace.createWalls(0, 0, 640, 0);
 		FlxNapeSpace.space.gravity.setxy(0, 980);
+		var walls = FlxNapeSpace.createWalls(0, 0, 640, 0);
+		var wallCollision:CbType = new CbType();
+		walls.cbTypes.add(wallCollision);
 		
 		var background = new FlxSprite(0, 0, "assets/images/background.png");
 		
@@ -54,6 +61,9 @@ class PlayState extends FlxState
 		loo.body.position.x = 160 + 80;
 		loo.body.position.y = 96;
 		
+		var looCollison:CbType = new CbType();
+		loo.body.cbTypes.add(looCollison);
+		
 		setImpulseOfLoo(FlxG.random.int( 20, 30) * (FlxG.random.bool() ? 1 : -1));
 		
 		pole = new FlxNapeSprite();
@@ -63,7 +73,7 @@ class PlayState extends FlxState
 		pole.body.position.x = 160 + 80;
 		pole.body.position.y = 184;
 		
-		rocks = new Shooter();
+		rocks = new Shooter(looCollison);
 		
 		wind = new FlxSprite(160, 65);
 		wind.loadGraphic("assets/images/gust.png", true, 160, 40);
@@ -120,6 +130,9 @@ class PlayState extends FlxState
 		
 		rockTimer = new FlxTimer();
 		rockTimer.start(FlxG.random.float(5, 8), throwRocks);
+		
+		var interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, looCollison, wallCollision, CrashSound);
+		FlxNapeSpace.space.listeners.add(interactionListener);
 	}
 
 	override public function update(elapsed:Float):Void
@@ -219,6 +232,9 @@ class PlayState extends FlxState
 			wind.animation.play("blowToLeft");
 		else
 			wind.animation.play("blowToRight");
+			
+			
+		FlxG.sound.play(AssetPaths.wind__ogg);
 		
 		setImpulseOfLoo(direction ? impulse : -impulse);
 		
@@ -232,5 +248,10 @@ class PlayState extends FlxState
 		
 		if (timer != null && !fallen)
 			timer.start(FlxG.random.float(3, 8) - (time < 75 ? time / 5 : 5), throwRocks);
+	}
+	
+	function CrashSound(callback:InteractionCallback)
+	{
+		FlxG.sound.play(AssetPaths.crash__ogg);
 	}
 }

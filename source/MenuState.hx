@@ -3,18 +3,17 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.text.FlxText;
-import flixel.ui.FlxButton;
-import flixel.math.FlxMath;
-
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-
 import flixel.addons.nape.FlxNapeSpace;
 import flixel.addons.nape.FlxNapeSprite;
-import nape.phys.BodyType;
-
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import nape.callbacks.CbEvent;
+import nape.callbacks.CbType;
+import nape.callbacks.InteractionCallback;
+import nape.callbacks.InteractionListener;
+import nape.callbacks.InteractionType;
+import nape.phys.BodyType;
 
 class MenuState extends FlxState
 {
@@ -24,7 +23,9 @@ class MenuState extends FlxState
 	{
 		super.create();
 		FlxNapeSpace.init();
-		FlxNapeSpace.createWalls(0, 0, 640, FlxG.height + 30);
+		var walls = FlxNapeSpace.createWalls(0, 0, 640, FlxG.height + 30);
+		var wallCollision:CbType = new CbType();
+		walls.cbTypes.add(wallCollision);
 		
 		var background = new FlxSprite(0, 0, "assets/images/background.png");
 		var title = new FlxSprite(-48, 0, "assets/images/title.png");
@@ -50,12 +51,22 @@ class MenuState extends FlxState
 		pole.body.rotation = 90 / 180 * 3.14;
 		add(pole);
 		
+		var poleCollision = new CbType();
+		pole.body.cbTypes.add(poleCollision);
+		var interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, poleCollision, wallCollision, CrashSound);
+		FlxNapeSpace.space.listeners.add(interactionListener);
+		
 		pole = new FlxNapeSprite();
 		pole.loadGraphic("assets/images/pole.png");
 		pole.createRectangularBody(0, 0, BodyType.KINEMATIC);
 		pole.body.position.x = 160 + 80;
 		pole.body.position.y = 184;
 		add(pole);
+		
+		poleCollision = new CbType();
+		pole.body.cbTypes.add(poleCollision);
+		interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, poleCollision, wallCollision, CrashSound);
+		FlxNapeSpace.space.listeners.add(interactionListener);
 		
 		pole = new FlxNapeSprite();
 		pole.loadGraphic("assets/images/pole.png");
@@ -65,6 +76,11 @@ class MenuState extends FlxState
 		pole.body.rotation = 90 / 180 * 3.14;
 		add(pole);
 		
+		poleCollision = new CbType();
+		pole.body.cbTypes.add(poleCollision);
+		interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, poleCollision, wallCollision, CrashSound);
+		FlxNapeSpace.space.listeners.add(interactionListener);
+		
 		pole = new FlxNapeSprite();
 		pole.loadGraphic("assets/images/pole.png");
 		pole.createRectangularBody();
@@ -72,11 +88,18 @@ class MenuState extends FlxState
 		pole.body.position.y = 184 + 8;
 		add(pole);
 		
+		poleCollision = new CbType();
+		pole.body.cbTypes.add(poleCollision);
+		interactionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, poleCollision, wallCollision, CrashSound);
+		FlxNapeSpace.space.listeners.add(interactionListener);
+		
 		add(text);
 		
 		timer = new FlxTimer();
 		
 		FlxG.camera.fade(FlxColor.BLACK, 1, true);
+		
+		FlxG.mouse.visible = false;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -86,6 +109,7 @@ class MenuState extends FlxState
 		if (FlxG.keys.justPressed.R)
 		{
 			FlxNapeSpace.space.gravity.setxy(0, 980);
+			FlxG.sound.play(AssetPaths.crash__ogg);
 			timer.start(2, FadeOut);
 		}
 	}
@@ -98,5 +122,10 @@ class MenuState extends FlxState
 	function GoToGame()
 	{
 		FlxG.switchState(new PlayState());
+	}
+	
+	function CrashSound(callback:InteractionCallback)
+	{
+		FlxG.sound.play(AssetPaths.crash__ogg);
 	}
 }
