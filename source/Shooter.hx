@@ -77,7 +77,9 @@ class Shooter extends FlxTypedGroup<FlxNapeSprite>
 	
 	function HitSound(callback:InteractionCallback)
 	{
+		#if !flash
 		FlxG.sound.play(AssetPaths.hit__ogg);
+		#end
 	}
 	
 	override public function update(elapsed:Float):Void 

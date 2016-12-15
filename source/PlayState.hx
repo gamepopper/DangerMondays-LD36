@@ -102,8 +102,8 @@ class PlayState extends FlxState
 		arms.loadGraphic("assets/images/workerarms.png");
 		
 		excrement = new FlxEmitter();
-		excrement.makeParticles(2, 2, FlxColor.BROWN, 100);
-		excrement.setPosition(80, 175);
+		excrement.makeParticles(6, 6, FlxColor.BROWN, 100);
+		excrement.setPosition(80, 170);
 		excrement.launchAngle.set(250, 290);
 		excrement.launchMode = FlxEmitterMode.CIRCLE;
 		excrement.speed.set(150, 250);
@@ -187,6 +187,8 @@ class PlayState extends FlxState
 			{
 				FlxTween.tween(worker, {x: 0}, 0.5);
 			}
+			
+			excrement.x = 80 + (worker.x * 0.5);
 		}
 		else if (!fallen)
 		{
@@ -234,7 +236,9 @@ class PlayState extends FlxState
 			wind.animation.play("blowToRight");
 			
 			
+		#if !flash
 		FlxG.sound.play(AssetPaths.wind__ogg);
+		#end
 		
 		setImpulseOfLoo(direction ? impulse : -impulse);
 		
@@ -252,6 +256,8 @@ class PlayState extends FlxState
 	
 	function CrashSound(callback:InteractionCallback)
 	{
+		#if !flash
 		FlxG.sound.play(AssetPaths.crash__ogg);
+		#end
 	}
 }

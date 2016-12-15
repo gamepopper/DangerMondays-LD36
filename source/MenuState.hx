@@ -36,7 +36,7 @@ class MenuState extends FlxState
 		loo.y = 96 - 32;
 		
 		var text = new FlxText(0, FlxG.height - 25, 320, 
-			"Developed by Gamepopper for Ludum Dare 36\nWARNING: Contains stuff found in toilets", 8);
+			"Developed by Gamepopper for Ludum Dare 37\nWARNING: Contains stuff found in toilets", 8);
 		text.alignment = FlxTextAlign.CENTER;
 		
 		add(background);
@@ -99,7 +99,7 @@ class MenuState extends FlxState
 		
 		FlxG.camera.fade(FlxColor.BLACK, 1, true);
 		
-		FlxG.mouse.visible = false;
+		FlxG.mouse.useSystemCursor = true;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -126,6 +126,8 @@ class MenuState extends FlxState
 	
 	function CrashSound(callback:InteractionCallback)
 	{
+		#if !flash
 		FlxG.sound.play(AssetPaths.crash__ogg);
+		#end
 	}
 }
